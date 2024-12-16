@@ -29,3 +29,27 @@ def issue_book(book_id, member_id):
         print("=> Book issued")
     else:
         print("=> Book not available for issue")
+
+def return_book(transaction_id):
+    transaction = session.query(Transaction).filter_by(id = transaction_id).first()
+    if transaction and not transaction.return_date:
+        transaction.return_date = date.today()
+        book = session.query(Book).filter_by(id = transaction_id).first()
+        book.count += 1
+        session.commit()
+        print("=> Book returned to library")
+    else:
+        print("=> Book already retuurned")
+
+def get_transactions_by_member(member_id):
+    return session.query(Transaction).filter_by(member_id = member_id).all()
+
+def delete_book(book_id, count):
+    book = session.query(Book).filter_by(id=book_id).first()
+    if book and book.count > 0 and count >= book.count:
+        # session.delete(book)  # It will delete entire book data(row) from Database
+        book.count -= count
+        session.commit()
+        print("=> Book stock is deleted")
+    else:
+        print("=> Book stock is not deleted/ out of stock")
